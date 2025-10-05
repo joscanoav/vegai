@@ -1,0 +1,32 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 0.2rem;
+  background-color: var(--bg-page);
+  overflow: hidden;
+}
+
+.chat-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 800px;
+  padding: 0 1rem;
+  height: 100%;
+}
+
+/* Añadimos adaptación para pantallas muy pequeñas */
+@media (max-width: 480px) {
+  .chat-wrapper {
+    padding: 0 0.5rem;
+  }
+}

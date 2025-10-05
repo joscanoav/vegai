@@ -1,0 +1,44 @@
+<div class="chat-container" aria-live="polite">
+  <p-card header="Chat con el Asistente" class="chat-card">
+    <p-scrollPanel
+      #scroll
+      [style]="{ height: '60vh' }"
+      class="chat-window"
+    >
+      <div
+        *ngFor="let m of messages"
+        class="message"
+        [ngClass]="m.from"
+      >
+        <div class="message-header">
+          <strong>{{ m.from === 'user' ? 'Tú' : 'VegAI' }}</strong>
+          <span class="timestamp">{{ m.timestamp | date: 'shortTime' }}</span>
+        </div>
+        <div class="message-body">
+          <span [innerHTML]="m.text | simpleMarkdown"></span>
+        </div>
+      </div>
+    </p-scrollPanel>
+
+    <div *ngIf="loading" class="spinner-overlay">
+      <p-progressSpinner></p-progressSpinner>
+    </div>
+
+    <div class="input-area">
+      <input
+        pInputText
+        [(ngModel)]="userInput"
+        placeholder="Escribe tu mensaje"
+        [disabled]="loading"
+        (keyup.enter)="send()"
+      />
+      <button
+        pButton
+        type="button"
+        icon="pi pi-send"
+        (click)="send()"
+        [disabled]="!userInput.trim() || loading"
+      ></button>
+    </div>
+  </p-card>
+</div>

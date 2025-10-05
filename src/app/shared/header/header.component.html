@@ -1,0 +1,17 @@
+<p-toolbar class="app-toolbar">
+  <!-- Contenedor flexible con logo, título y botón -->
+  <div class="toolbar-content">
+    <img src="assets/images/logo-vegai.png" alt="VegAI" height="70" />
+
+    <span class="toolbar-title">VegAI</span>
+
+    <button
+      pButton
+      pRipple
+      type="button"
+      (click)="toggleTheme()"
+    >
+      {{ darkMode ? '☀️ ' : '🌙 ' }}
+    </button>
+  </div>
+</p-toolbar>

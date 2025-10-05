@@ -1,0 +1,127 @@
+@import "primeicons/primeicons.css";
+
+/* 1) Variables de color (modo claro + oscuro) */
+:root {
+  --bg-page:    #f0fdfa;
+  --text-color: #1e293b;
+  --menu-bg:    #ffffff;
+  --menu-text:  #1e293b;
+  --card-bg:    #ffffff;
+  --card-text: #1e293b;
+  --input-bg:   #ffffff;
+  --input-text: #1e293b;
+  --border:     #e2e8f0;
+  --primary:    #178cc7;
+}
+body.dark {
+  --bg-page:    #1e293b;
+  --text-color: #f0fdfa;
+  --menu-bg:    #0f172a;
+  --menu-text:  #f0fdfa;
+  --card-bg:    #1e1f2b;
+  --card-text: #f0fdfa;
+  --input-bg:   #1e293b;
+  --input-text: #f0fdfa;
+  --border:     #334155;
+  --primary:    #178cc7;
+}
+
+/* 2) Layout base de la aplicación */
+body {
+  background: var(--bg-page);          /* Fondo definido por variable */
+  color: var(--text-color);           /* Color de texto global */
+  font-family: 'Inter', sans-serif;   /* Fuente base */
+  transition: background 0.3s, color 0.3s; /* Transición suave al cambiar tema */
+}
+:host {
+  display: flex;                       /* Flex container vertical */
+  flex-direction: column;              /* Columnas: header, main, footer */
+  height: 100vh;                       /* Altura completa de la ventana */
+  overflow: hidden;                    /* Evita scroll global */
+}
+.main-content {
+  flex: 1;                             /* Ocupa espacio restante */
+  display: flex;                       /* Centrado de contenido */
+  justify-content: center;
+  align-items: flex-start;             /* Inicia desde arriba */
+  padding: 1rem;                       /* Espaciado interno */
+  background: var(--bg-page);
+  transition: background 0.3s;
+  overflow: hidden;                    /* Evita scroll interno */
+}
+
+/* 3) Sobrescrituras de estilos PrimeNG para adaptarse al tema */
+.p-menubar,
+.p-toolbar {
+  background: var(--menu-bg) !important; /* Fondo de menús y toolbars */
+  color: var(--menu-text) !important;    /* Texto de menús y toolbars */
+  transition: background 0.3s, color 0.3s;
+}
+button[pButton] {
+  background:    var(--primary)    !important; /* Botones primarios */
+  border-color:  var(--primary)    !important;
+  color:         var(--menu-text)  !important;
+}
+.p-card {
+  background:   var(--card-bg)     !important; /* Tarjetas de contenido */
+  color:        var(--card-text)   !important;
+  border:       1px solid var(--border) !important;
+  transition: background 0.3s, color 0.3s, border-color 0.3s;
+}
+
+/* 4) Animaciones y utilidades compartidas */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); } /* Fade in desde abajo */
+  to   { opacity: 1; transform: translateY(0); }
+}
+.spinner-overlay {
+  position: absolute;                 /* Cubre todo el contenedor */
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;                      /* Centra spinner */
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.1);    /* Fondo semitransparente */
+}
+
+/* 5) Estilos de mensajes genéricos */
+.message {
+  animation: fadeInUp 0.2s ease-out;  /* Animación al aparecer cada mensaje */
+  margin-bottom: 0.75rem;             /* Separación entre mensajes */
+}
+.message-body {
+  background: var(--card-bg);         /* Fondo de burbuja de mensaje */
+  color:      var(--card-text);
+  padding: 0.5rem 1rem;               /* Espaciado interno del mensaje */
+  border-radius: 0.5rem;              /* Borde redondeado */
+  border: 1px solid var(--border);
+}
+
+/* 6) Área de entrada de texto */
+.input-area {
+  display: flex;
+  gap: 0.5rem;                        /* Espacio entre input y botón */
+  padding: 1rem;                      /* Espaciado interno */
+  border-top: 1px solid var(--border);
+  background: var(--input-bg);
+  transition: background 0.3s, border-color 0.3s;
+}
+.input-area input[pInputText] {
+  flex: 1;                            /* Ocupa espacio restante */
+  background: var(--input-bg) !important;
+  color: var(--input-text) !important;
+  border: 1px solid var(--border) !important;
+}
+.input-area button[pButton] {
+  background:    var(--primary)    !important;
+  border-color:  var(--primary)    !important;
+  color:         var(--card-text)  !important;
+}
+
+/* 7) Ajustes responsivos genéricos */
+@media (max-width: 640px) {
+  .chat-card {
+    width: calc(100% - 1rem);         /* Margen en móviles */
+    margin: 0.5rem;
+    height: calc(100vh - 120px);      /* Ajusta altura del chat */
+  }
+}

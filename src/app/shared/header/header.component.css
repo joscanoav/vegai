@@ -1,0 +1,23 @@
+/* Toolbar principal */
+.app-toolbar {
+  width: 100%;
+  padding: 0 1rem;
+  box-sizing: border-box;
+}
+
+/* Contenedor interno con Flexbox */
+.toolbar-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Logo a la izquierda, botón a la derecha */
+  width: 100%;
+}
+
+/* Título centrado */
+.toolbar-title {
+  margin: 0 auto;         /* Empuja el logo y botón a los lados */
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--menu-text);
+  text-align: center;
+}

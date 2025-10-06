@@ -1,4 +1,3 @@
-// src/app/chat/chat.component.ts
 import {
   Component,
   AfterViewChecked,
@@ -57,37 +56,43 @@ Estoy aquí para ayudarte a descubrir lo fascinante que es la tecnología, la pr
   // Bandera para saber si ya se reprodujo el TTS del saludo inicial
   private welcomeSpoken = false;
 
+  // 🔴 Bandera para controlar si el asistente está hablando
+  isSpeaking = false;
+
   constructor(private gemini: GeminiService) {}
 
-ngOnInit(): void {
-  const seen = localStorage.getItem(this.WELCOME_KEY);
-  
-  // Siempre mostrar el saludo en la interfaz
-  this.messages.push({ from: 'ia', text: this.WELCOME_TEXT, timestamp: new Date() });
+  ngOnInit(): void {
+    const seen = localStorage.getItem(this.WELCOME_KEY);
 
-  if (!seen) {
-    // Primera vez → marcar en el historial y reproducir voz
-    this.gemini.registerWelcomeShown();
-    this.speakWelcome();
-    localStorage.setItem(this.WELCOME_KEY, '1');
-  } else {
-    // Ya se mostró antes → solo marcar scroll, sin repetir TTS ni API
-    this.shouldScroll = true;
-  }
-}
+    this.messages.push({ from: 'ia', text: this.WELCOME_TEXT, timestamp: new Date() });
 
-private speakWelcome(): void {
-  try {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      const u = new SpeechSynthesisUtterance(this.WELCOME_TEXT);
-      u.lang = 'es-ES';
-      window.speechSynthesis.speak(u);
-      this.welcomeSpoken = true;
+    if (!seen) {
+      this.gemini.registerWelcomeShown();
+      this.speakWelcome();
+      localStorage.setItem(this.WELCOME_KEY, '1');
+    } else {
+      this.shouldScroll = true;
     }
-  } catch (e) {
-    console.warn('SpeechSynthesis error', e);
   }
-}
+
+  private speakWelcome(): void {
+    try {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        const u = new SpeechSynthesisUtterance(this.WELCOME_TEXT);
+        u.lang = 'es-ES';
+
+        this.isSpeaking = true;
+        u.onend = () => (this.isSpeaking = false);
+        u.onerror = () => (this.isSpeaking = false);
+
+        window.speechSynthesis.speak(u);
+        this.welcomeSpoken = true;
+      }
+    } catch (e) {
+      console.warn('SpeechSynthesis error', e);
+      this.isSpeaking = false;
+    }
+  }
 
   private sendAndHandle(userText: string, opts: { showUserMessage: boolean } = { showUserMessage: true }): void {
     if (opts.showUserMessage) {
@@ -111,20 +116,23 @@ private speakWelcome(): void {
         this.loading = false;
         this.shouldScroll = true;
 
-        // TTS: reproducir salvo que sea una repetición del saludo inicial
+        // 🔊 TTS
         try {
           if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-            // Si ya sonó el saludo inicial y la respuesta parece ser un saludo, no repetir TTS
             if (this.welcomeSpoken && this.isReplyGreeting(reply)) {
               // no reproducir
             } else {
               const u = new SpeechSynthesisUtterance(reply);
               u.lang = 'es-ES';
+              this.isSpeaking = true;
+              u.onend = () => (this.isSpeaking = false);
+              u.onerror = () => (this.isSpeaking = false);
               window.speechSynthesis.speak(u);
             }
           }
         } catch (e) {
           console.warn('SpeechSynthesis error', e);
+          this.isSpeaking = false;
         }
       },
       error: (err) => {
@@ -138,13 +146,9 @@ private speakWelcome(): void {
     });
   }
 
-  /** Detección sencilla de replies que son saludos/repeticiones del welcome.
-   *  Puedes ajustar la regex si tu modelo usa otras palabras.
-   */
   private isReplyGreeting(reply: string): boolean {
     if (!reply) return false;
     const r = reply.toLowerCase();
-    // patrones comunes: empieza con "hola", contiene "soy vegaai" o "tu asistente virtual"
     return (
       r.trim().startsWith('¡hola') ||
       r.trim().startsWith('hola') ||
@@ -171,20 +175,22 @@ private speakWelcome(): void {
     }
   }
 
-newConversation(): void {
-  this.messages = [];
-  this.gemini.resetConversation();
-  localStorage.removeItem(this.WELCOME_KEY);
-  this.welcomeSpoken = false;
+  newConversation(): void {
+    this.messages = [];
+    this.gemini.resetConversation();
+    localStorage.removeItem(this.WELCOME_KEY);
+    this.welcomeSpoken = false;
 
-  // Mostrar saludo en la UI
-  this.messages.push({ from: 'ia', text: this.WELCOME_TEXT, timestamp: new Date() });
+    this.messages.push({ from: 'ia', text: this.WELCOME_TEXT, timestamp: new Date() });
+    this.gemini.registerWelcomeShown();
+    this.speakWelcome();
+    localStorage.setItem(this.WELCOME_KEY, '1');
+  }
 
-  // Volver a marcar y reproducir voz
-  this.gemini.registerWelcomeShown();
-  this.speakWelcome();
-
-  localStorage.setItem(this.WELCOME_KEY, '1');
-}
-
+  stopSpeech(): void {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      this.isSpeaking = false;
+    }
+  }
 }

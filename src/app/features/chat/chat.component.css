@@ -63,6 +63,67 @@
   animation: fadeIn 0.3s ease;
 }
 
+/* === Header con avatar === */
+.chat-header {
+  position: relative; /* necesario para posicionar el ícono dentro */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1rem;
+  background: var(--surface-card);
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.robot-avatar {
+  width: 120px;
+  max-width: 40vw;   /* responsive para móviles */
+  height: auto;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.chat-header h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: var(--text-color);
+}
+
+/* Encabezado de cada mensaje */
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.3rem;
+  font-size: 0.85rem;
+}
+
+.sender {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.timestamp {
+  font-size: 0.75rem;
+  color: var(--text-color-secondary);
+}
+
+/* Botón stop usa mismo estilo base que send */
+.stop-btn {
+  background: var(--primary) !important;
+  color: #fff !important;
+}
+
+/* Hover del stop → puedes usar un color distinto para destacarlo */
+.stop-btn:hover {
+  background: var(--accent) !important;
+  color: var(--primary) !important;
+  transform: scale(1.05);
+}
+
+
 
 
 @keyframes fadeIn {

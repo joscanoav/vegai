@@ -1,8 +1,16 @@
 <div class="chat-container" aria-live="polite">
   <p-card  class="chat-card">
+    <!-- Avatar del asistente -->
+<div class="chat-header">
+  <img src="assets/images/vegai.jpg" alt="Robot VegaAI" class="robot-avatar" />
+  <h2>VegaAI</h2>
+  <!-- 🔴 Botón icono stop -->
+
+</div>
+
     <p-scrollPanel
       #scroll
-      [style]="{ height: '63vh' }"
+      [style]="{ height: '47vh' }"
       class="chat-window"
     >
       <div
@@ -10,13 +18,14 @@
         class="message"
         [ngClass]="m.from"
       >
-        <div class="message-header">
-          <strong>{{ m.from === 'user' ? 'Tú' : 'VegAI' }}</strong>
-          <span class="timestamp">{{ m.timestamp | date: 'shortTime' }}</span>
-        </div>
-        <div class="message-body">
-          <span [innerHTML]="m.text | simpleMarkdown"></span>
-        </div>
+<div class="message-header">
+  <span class="sender">{{ m.from === 'user' ? 'Tú' : 'VegAI' }}</span>
+  <span class="timestamp">{{ m.timestamp | date: 'shortTime' }}</span>
+</div>
+<div class="message-body">
+  <span [innerHTML]="m.text | simpleMarkdown"></span>
+</div>
+
       </div>
     </p-scrollPanel>
 
@@ -32,6 +41,18 @@
         [disabled]="loading"
         (keyup.enter)="send()"
       />
+
+<button
+  pButton
+  type="button"
+  icon="pi pi-stop"
+  class="send-btn stop-btn"
+  (click)="stopSpeech()"
+  [disabled]="!isSpeaking"
+  pTooltip="Detener voz"
+  tooltipPosition="top"
+></button>
+
       <button
         pButton
         type="button"

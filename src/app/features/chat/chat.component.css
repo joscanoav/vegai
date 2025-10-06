@@ -1,29 +1,28 @@
-/* === Contenedor principal === */
 .chat-container {
-  min-height: calc(100vh - 4rem);
-  padding: 0.5rem 1rem;
+  flex: 1;
+  width: 100%;
   display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   background: var(--surface-ground);
-  padding: 2rem 1rem;
   box-sizing: border-box;
+  height: 100%; /* 🔹 asegura que use solo el espacio del main */
+  overflow: hidden;
 }
+
 
 /* === Tarjeta principal === */
 .chat-card {
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 1000px;         /* Se adapta mejor en pantallas grandes */
-  height: auto;
-  max-height: 85vh;
+  max-width: 1000px;
+  height: 80vh; /* 🔹 se adapta sin forzar scroll */
   border-radius: 1.2rem;
   background: var(--surface-card);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-  overflow: visible;
-  margin-bottom: 1rem;
-  transition: box-shadow 0.3s ease, transform 0.2s ease;
+  transition: margin 0.3s ease, transform 0.2s ease;
 }
 
 .chat-card:hover {

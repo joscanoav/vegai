@@ -1,18 +1,17 @@
 :host {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto; /* header - main - footer */
+  height: 100vh; /* ocupa exactamente toda la altura */
   overflow: hidden;
 }
 
 .main-content {
-  flex: 1;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  padding: 0.2rem;
+  align-items: center;
+  padding: 0; /* sin padding extra */
   background-color: var(--bg-page);
-  overflow: hidden;
+  overflow: hidden; /* sin scroll */
 }
 
 .chat-wrapper {

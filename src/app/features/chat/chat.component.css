@@ -16,10 +16,9 @@ html, body {
   align-items: center;
   background: var(--surface-ground);
   box-sizing: border-box;
-  height: 100%; /* 🔹 asegura que use solo el espacio del main */
+  height: 100%;
   overflow: hidden;
 }
-
 
 /* === Tarjeta principal === */
 .chat-card {
@@ -55,7 +54,6 @@ html, body {
   overflow-y: auto;
   scroll-behavior: smooth;
   padding-bottom: 5rem; /* deja espacio para el input */
-
 }
 
 /* === Mensajes === */
@@ -71,7 +69,7 @@ html, body {
 
 /* === Header con avatar === */
 .chat-header {
-  position: relative; /* necesario para posicionar el ícono dentro */
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -83,7 +81,7 @@ html, body {
 
 .robot-avatar {
   width: 120px;
-  max-width: 40vw;   /* responsive para móviles */
+  max-width: 40vw;
   height: auto;
   border-radius: 50%;
   object-fit: cover;
@@ -116,21 +114,17 @@ html, body {
   color: var(--text-color-secondary);
 }
 
-/* Botón stop usa mismo estilo base que send */
+/* Botón stop */
 .stop-btn {
   background: var(--primary) !important;
   color: #fff !important;
 }
 
-/* Hover del stop → puedes usar un color distinto para destacarlo */
 .stop-btn:hover {
   background: var(--accent) !important;
   color: var(--primary) !important;
   transform: scale(1.05);
 }
-
-
-
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(5px); }
@@ -157,15 +151,20 @@ html, body {
 /* Área de entrada */
 .input-area {
   display: flex;
-  gap: 0.75rem;
-  padding: 1rem;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
   border-top: 1px solid var(--surface-border);
   background: var(--surface-card);
-  align-items: center;
+  position: sticky;
+  bottom: 0;
+  width: 100%;
+  z-index: 10;
 }
 
 .input-area input[pInputText] {
   flex: 1;
+  min-width: 0;
   border-radius: 2rem;
   padding: 0.85rem 1.2rem;
   border: 1px solid var(--surface-border);
@@ -180,15 +179,16 @@ html, body {
 }
 
 .input-area button[pButton] {
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 1rem;
   border-radius: 50%;
-  width: 3rem;
-  height: 3rem;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--primary-color);
   color: white;
-  font-size: 1.2rem;
   transition: background 0.3s ease, transform 0.2s ease;
 }
 
@@ -197,7 +197,7 @@ html, body {
   transform: scale(1.05);
 }
 
-/* === Spinner === */
+/* Spinner */
 .spinner-overlay {
   position: absolute;
   inset: 0;
@@ -209,18 +209,13 @@ html, body {
   border-radius: inherit;
 }
 
-/* === Ajustes responsivos === */
-
-
-
+/* ======= Ajustes móviles ======= */
 @media (max-width: 640px) {
-  /* Contenedor del chat */
   .chat-container {
-    height: 100vh;       /* toda la altura del viewport */
+    height: 100vh;
     padding: 0.5rem;
   }
 
-  /* Tarjeta principal */
   .chat-card {
     width: 100%;
     max-width: 100%;
@@ -230,57 +225,52 @@ html, body {
     flex-direction: column;
   }
 
-  /* Ventana de mensajes */
   .chat-window {
     flex: 1;
     overflow-y: auto;
-    padding-bottom: 5rem;  /* deja espacio para input */
+    padding-bottom: 4rem; /* espacio reducido para input */
   }
 
-  /* Área de entrada */
   .input-area {
-    position: sticky;
-    bottom: 0;
-    width: 100%;
-    padding: 0.5rem;
-    background: var(--surface-card);
-    z-index: 10;
+    padding: 0.25rem 0.5rem; /* footer más compacto */
+    gap: 0.35rem;
   }
 
-  /* Botones (enviar y stop) */
+  .input-area input[pInputText] {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+  }
+
   .input-area button[pButton] {
-    width: 2.5rem;      /* tamaño cómodo para tocar */
-    height: 2.5rem;
-    font-size: 1rem;
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.85rem;
   }
 
-  /* Mensajes */
   .message {
     font-size: 0.9rem;
     max-width: 90%;
   }
 
-  /* Avatar del asistente */
   .robot-avatar {
-    width: 60px;
+    width: 45px;
     max-width: 30vw;
   }
 }
 
-
-/* 🖥️ Escritorios grandes */
+/* Escritorios grandes */
 @media (min-width: 1025px) {
   .chat-card {
     max-width: 1000px;
   }
 }
 
-/* botón circular envio */
+/* Botón circular envío */
 .send-btn.p-button {
   width: 3rem;
   height: 3rem;
   border-radius: 50%;
-  background: var(--primary) !important;       /* color principal */
+  background: var(--primary) !important;
   border-color: var(--primary) !important;
   color: #fff !important;
   display:flex;
@@ -289,16 +279,14 @@ html, body {
   font-size:1.1rem;
 }
 
-/* hover / focus / active */
 .send-btn.p-button:hover,
 .send-btn.p-button:focus {
-  background: var(--accent) !important;        /* hover amarillo */
-  color: var(--primary) !important;            /* texto azul */
+  background: var(--accent) !important;
+  color: var(--primary) !important;
   transform: scale(1.05);
   box-shadow: none;
 }
 
-/* estado disabled */
 .send-btn.p-button[disabled] {
   opacity: 0.6;
   cursor: not-allowed;
@@ -306,16 +294,14 @@ html, body {
   color: #fff !important;
 }
 
-/* Quitar borde / sombra del botón send */
 .send-btn.p-button,
 .send-btn.p-button.p-component,
 .send-btn.p-button.p-button-icon-only {
-  border: none !important;       /* quita el borde */
-  box-shadow: none !important;   /* quita sombras del tema */
-  outline: none !important;      /* quita outline inline si existiera */
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
-/* Estados hover / active / focus (sin borde ni sombra) */
 .send-btn.p-button:hover,
 .send-btn.p-button:active,
 .send-btn.p-button:focus {
@@ -325,9 +311,7 @@ html, body {
   transform: scale(1.05);
 }
 
-/* --- RECOMENDADO: mantener indicación visual para usuarios de teclado --- */
-/* usa focus-visible para mostrar un anillo leve solo cuando viene del teclado */
 .send-btn.p-button:focus-visible {
-  box-shadow: 0 0 0 3px rgba(229,200,59,0.25) !important; /* anillo sutil (amarillo claro) */
+  box-shadow: 0 0 0 3px rgba(229,200,59,0.25) !important;
   outline: none !important;
 }

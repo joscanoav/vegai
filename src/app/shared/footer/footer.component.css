@@ -1,13 +1,22 @@
 /* Selector global de componente que fuerza estilo en la toolbar del footer */
 :host ::ng-deep .app-toolbar.footer {
-  /* Establece un contenedor flex para centrar horizontal y verticalmente */
   display: flex !important;
-  align-items: center !important;    /* Alinea verticalmente al centro */
-  justify-content: center !important;/* Alinea horizontalmente al centro */
+  align-items: center !important;
+  justify-content: center !important;
 
-  /* Altura fija de 4rem para la barra inferior */
-  height: 4rem;
+  /* Altura reducida para móviles */
+  height: 4rem;  /* antes era 4rem */
 
-  /* Espaciado horizontal interno de 1rem a cada lado */
+  /* Espaciado horizontal interno */
   padding: 0 1rem;
+  font-size: 0.85rem; /* tamaño de texto más compacto en móviles */
+}
+
+/* Ajuste adicional solo para móviles */
+@media (max-width: 640px) {
+  :host ::ng-deep .app-toolbar.footer {
+    height: 2rem;        /* aún más compacto */
+    padding: 0 0.5rem;   /* menos padding horizontal */
+    font-size: 0.8rem;   /* texto más pequeño para que quepa mejor */
+  }
 }

@@ -35,7 +35,8 @@
             "styles": [
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [],
+            "outputMode": "static"
           },
           "configurations": {
             "production": {

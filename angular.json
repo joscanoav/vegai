@@ -52,7 +52,7 @@
                 }
               ],
               "outputHashing": "all",
-              "baseHref": "/thinkia/"
+              "baseHref": "/"
             },
             "development": {
               "optimization": false,

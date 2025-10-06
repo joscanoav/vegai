@@ -1,9 +1,11 @@
 <p-toolbar class="app-toolbar">
-  <!-- Contenedor flexible con logo, título y botón -->
   <div class="toolbar-content">
     <img src="assets/images/logo-vegai.png" alt="VegAI" height="50" />
 
-    <span class="toolbar-title">VegAI</span>
+    <div class="toolbar-title">
+      <span class="title-main">VegAI</span>
+      <span class="title-sub">Asistente Virtual Educativo del Colegio Ntra. Sra. de la Vega</span>
+    </div>
 
     <button
       pButton
@@ -11,7 +13,8 @@
       type="button"
       (click)="toggleTheme()"
     >
-      {{ darkMode ? '☀️ ' : '🌙 ' }}
+      {{ darkMode ? '🌙' : '☀️' }}
     </button>
   </div>
 </p-toolbar>
+

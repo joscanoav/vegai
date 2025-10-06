@@ -9,15 +9,32 @@
 .toolbar-content {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Logo a la izquierda, botón a la derecha */
+  justify-content: space-between;
   width: 100%;
 }
 
-/* Título centrado */
+/* Título centrado con subtítulo */
 .toolbar-title {
-  margin: 0 auto;         /* Empuja el logo y botón a los lados */
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: var(--menu-text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
+  margin: 0 auto;
+  font-family: 'Poppins', 'Inter', sans-serif;
+}
+
+/* Título principal */
+.title-main {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: 0.5px;
+}
+
+/* Subtítulo */
+.title-sub {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--text-color);
+  margin-top: 0.15rem;
 }

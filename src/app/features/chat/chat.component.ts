@@ -1,31 +1,31 @@
-// Importaciones de Angular y módulos necesarios
+// src/app/chat/chat.component.ts
 import {
-  Component,            // Decorador para definir componentes
-  AfterViewChecked,     // Ciclo de vida para acciones tras la detección de cambios en la vista
-  ElementRef,           // Referencia a elementos del DOM
-  ViewChild             // Decorador para obtener referencias a elementos dentro de la plantilla
+  Component,
+  AfterViewChecked,
+  ElementRef,
+  ViewChild,
+  OnInit,
 } from '@angular/core';
-import { CommonModule, NgForOf, NgClass } from '@angular/common'; // Módulos estructurales y de directivas
-import { FormsModule } from '@angular/forms';                   // Soporte para formularios y ngModel
-import { CardModule } from 'primeng/card';                       // Componente de tarjeta de PrimeNG
-import { ScrollPanelModule } from 'primeng/scrollpanel';         // Panel con scroll de PrimeNG
-import { InputTextModule } from 'primeng/inputtext';             // Campo de texto de PrimeNG
-import { ButtonModule } from 'primeng/button';                   // Botón de PrimeNG
-import { ProgressSpinnerModule } from 'primeng/progressspinner'; // Spinner de carga de PrimeNG
-import { SimpleMarkdownPipe } from '../../shared/pipes/markdown.pipe'; // Pipe para renderizar Markdown simple
-import { GeminiService } from '../../services/gemini.service';    // Servicio para comunicarse con la API Gemini
+import { CommonModule, NgForOf, NgClass } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { CardModule } from 'primeng/card';
+import { ScrollPanelModule } from 'primeng/scrollpanel';
+import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from 'primeng/button';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { SimpleMarkdownPipe } from '../../shared/pipes/markdown.pipe';
+import { GeminiService } from '../../services/gemini.service';
 
-// Definición de la estructura de un mensaje
 interface Message {
-  from: 'user' | 'ia';   // Origen del mensaje: usuario o IA
-  text: string;          // Contenido del mensaje
-  timestamp?: Date;      // Marca de tiempo opcional
+  from: 'user' | 'ia';
+  text: string;
+  timestamp?: Date;
 }
 
 @Component({
-  selector: 'app-chat',                // Selector del componente en templates
-  standalone: true,                    // Componente independiente (sin módulo NgModule)
-  imports: [                           // Módulos y pipes que importa este componente
+  selector: 'app-chat',
+  standalone: true,
+  imports: [
     CommonModule,
     NgForOf,
     NgClass,
@@ -35,68 +35,156 @@ interface Message {
     InputTextModule,
     ButtonModule,
     ProgressSpinnerModule,
-    SimpleMarkdownPipe
+    SimpleMarkdownPipe,
   ],
-  templateUrl: './chat.component.html', // Archivo de plantilla HTML
-  styleUrls: ['./chat.component.css']    // Archivo de estilos CSS
+  templateUrl: './chat.component.html',
+  styleUrls: ['./chat.component.css'],
 })
-export class ChatComponent implements AfterViewChecked {
-  // Referencia al ScrollPanel para controlar el scroll automáticamente
-  @ViewChild('scroll') scrollPanel!: ElementRef;
+export class ChatComponent implements OnInit, AfterViewChecked {
+  @ViewChild('scroll', { read: ElementRef }) scrollPanel?: ElementRef;
 
-  messages: Message[] = [];  // Array que almacena los mensajes del chat
-  userInput = '';            // Modelo vinculado al campo de entrada de usuario
-  loading = false;           // Estado de carga para mostrar spinner
-  private shouldScroll = false; // Indicador para desplazar al final tras nuevos mensajes
+  messages: Message[] = [];
+  userInput = '';
+  loading = false;
+  private shouldScroll = false;
 
-  constructor(private gemini: GeminiService) {} // Inyección del servicio Gemini
+  private readonly WELCOME_KEY = 'vegaai_seen_welcome';
 
-  // Método que se invoca al enviar un mensaje
-  send(): void {
-    const text = this.userInput.trim(); // Eliminar espacios al inicio y fin
-    if (!text) return;                  // No enviar si el texto está vacío
+  private readonly WELCOME_TEXT = `¡Hola! 😊 Soy VegaAI, tu asistente virtual para Ciencias de la Computación y Digitalización.
+Estoy aquí para ayudarte a descubrir lo fascinante que es la tecnología, la programación y todo el mundo digital.
+¿Sobre qué tema te gustaría aprender hoy? 💻✨`;
 
-    // Añade el mensaje del usuario al array con timestamp actual
-    this.messages.push({ from: 'user', text, timestamp: new Date() });
-    this.userInput = '';    // Limpia el campo de entrada
-    this.loading = true;    // Activa el spinner de carga
-    this.shouldScroll = true; // Marcar para hacer scroll al final
+  // Bandera para saber si ya se reprodujo el TTS del saludo inicial
+  private welcomeSpoken = false;
 
-    // Llamada al servicio Gemini para generar respuesta
-    this.gemini.generate(text).subscribe({
-      next: resp => {
-        // Extrae el texto de la primera respuesta válida o mensaje de error
-        const reply =
-          resp.candidates?.[0]?.content.parts[0].text ||
-          'No se recibió respuesta válida.';
-        // Añade la respuesta de la IA al chat
+  constructor(private gemini: GeminiService) {}
+
+ngOnInit(): void {
+  const seen = localStorage.getItem(this.WELCOME_KEY);
+  
+  // Siempre mostrar el saludo en la interfaz
+  this.messages.push({ from: 'ia', text: this.WELCOME_TEXT, timestamp: new Date() });
+
+  if (!seen) {
+    // Primera vez → marcar en el historial y reproducir voz
+    this.gemini.registerWelcomeShown();
+    this.speakWelcome();
+    localStorage.setItem(this.WELCOME_KEY, '1');
+  } else {
+    // Ya se mostró antes → solo marcar scroll, sin repetir TTS ni API
+    this.shouldScroll = true;
+  }
+}
+
+private speakWelcome(): void {
+  try {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      const u = new SpeechSynthesisUtterance(this.WELCOME_TEXT);
+      u.lang = 'es-ES';
+      window.speechSynthesis.speak(u);
+      this.welcomeSpoken = true;
+    }
+  } catch (e) {
+    console.warn('SpeechSynthesis error', e);
+  }
+}
+
+  private sendAndHandle(userText: string, opts: { showUserMessage: boolean } = { showUserMessage: true }): void {
+    if (opts.showUserMessage) {
+      this.messages.push({ from: 'user', text: userText, timestamp: new Date() });
+    }
+
+    this.gemini.addUserMessageToHistory(userText);
+
+    if (opts.showUserMessage) this.userInput = '';
+    this.loading = true;
+    this.shouldScroll = true;
+
+    this.gemini.generateWithHistory().subscribe({
+      next: (resp) => {
+        const reply = resp?.candidates?.[0]?.content?.parts?.[0]?.text
+          || 'No se recibió respuesta válida.';
+
         this.messages.push({ from: 'ia', text: reply, timestamp: new Date() });
-        this.loading = false;    // Desactiva el spinner
-        this.shouldScroll = true; // Marcar para scroll
+        this.gemini.addAiMessageToHistory(reply);
+
+        this.loading = false;
+        this.shouldScroll = true;
+
+        // TTS: reproducir salvo que sea una repetición del saludo inicial
+        try {
+          if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+            // Si ya sonó el saludo inicial y la respuesta parece ser un saludo, no repetir TTS
+            if (this.welcomeSpoken && this.isReplyGreeting(reply)) {
+              // no reproducir
+            } else {
+              const u = new SpeechSynthesisUtterance(reply);
+              u.lang = 'es-ES';
+              window.speechSynthesis.speak(u);
+            }
+          }
+        } catch (e) {
+          console.warn('SpeechSynthesis error', e);
+        }
       },
-      error: err => {
-        // En caso de error, mostrar mensaje de error en el chat
-        this.messages.push({
-          from: 'ia',
-          text: `Error: ${err.message}`,
-          timestamp: new Date()
-        });
-        this.loading = false;    // Desactiva el spinner
-        this.shouldScroll = true; // Marcar para scroll
-      }
+      error: (err) => {
+        console.error('Error en Gemini:', err);
+        const errMsg = `Error: ${err?.message ?? 'desconocido'}`;
+        this.messages.push({ from: 'ia', text: errMsg, timestamp: new Date() });
+        this.gemini.addAiMessageToHistory(errMsg);
+        this.loading = false;
+        this.shouldScroll = true;
+      },
     });
   }
 
-  // Ciclo de vida que se ejecuta tras cada detección de cambios en la vista
+  /** Detección sencilla de replies que son saludos/repeticiones del welcome.
+   *  Puedes ajustar la regex si tu modelo usa otras palabras.
+   */
+  private isReplyGreeting(reply: string): boolean {
+    if (!reply) return false;
+    const r = reply.toLowerCase();
+    // patrones comunes: empieza con "hola", contiene "soy vegaai" o "tu asistente virtual"
+    return (
+      r.trim().startsWith('¡hola') ||
+      r.trim().startsWith('hola') ||
+      r.includes('soy vegaai') ||
+      r.includes('tu asistente virtual') ||
+      /¿sobre qué tema te gustaría|estoy aquí para ayudarte/.test(r)
+    );
+  }
+
+  send(): void {
+    const text = this.userInput.trim();
+    if (!text) return;
+    this.sendAndHandle(text, { showUserMessage: true });
+  }
+
   ngAfterViewChecked(): void {
-    if (this.shouldScroll && this.scrollPanel) {
-      // Obtiene el contenedor interno del ScrollPanel
-      const el: HTMLElement = this.scrollPanel.nativeElement.querySelector(
-        '.p-scrollpanel-content'
-      );
-      // Desplaza el scroll hasta el final para ver el último mensaje
-      el.scrollTop = el.scrollHeight;
-      this.shouldScroll = false; // Reset del indicador
+    if (this.shouldScroll && this.scrollPanel?.nativeElement) {
+      const hostEl: HTMLElement = this.scrollPanel.nativeElement;
+      const inner = hostEl.querySelector('.p-scrollpanel-content') as HTMLElement | null;
+      if (inner) {
+        inner.scrollTop = inner.scrollHeight;
+      }
+      this.shouldScroll = false;
     }
   }
+
+newConversation(): void {
+  this.messages = [];
+  this.gemini.resetConversation();
+  localStorage.removeItem(this.WELCOME_KEY);
+  this.welcomeSpoken = false;
+
+  // Mostrar saludo en la UI
+  this.messages.push({ from: 'ia', text: this.WELCOME_TEXT, timestamp: new Date() });
+
+  // Volver a marcar y reproducir voz
+  this.gemini.registerWelcomeShown();
+  this.speakWelcome();
+
+  localStorage.setItem(this.WELCOME_KEY, '1');
+}
+
 }

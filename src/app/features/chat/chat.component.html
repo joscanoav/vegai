@@ -1,8 +1,8 @@
 <div class="chat-container" aria-live="polite">
-  <p-card header="Chat con el Asistente" class="chat-card">
+  <p-card  class="chat-card">
     <p-scrollPanel
       #scroll
-      [style]="{ height: '60vh' }"
+      [style]="{ height: '63vh' }"
       class="chat-window"
     >
       <div
@@ -36,6 +36,7 @@
         pButton
         type="button"
         icon="pi pi-send"
+        class="send-btn"
         (click)="send()"
         [disabled]="!userInput.trim() || loading"
       ></button>

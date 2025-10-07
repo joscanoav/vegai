@@ -17,6 +17,9 @@
   :host ::ng-deep .app-toolbar.footer {
     height: 2rem;        /* aún más compacto */
     padding: 0 0.5rem;   /* menos padding horizontal */
-    font-size: 0.8rem;   /* texto más pequeño para que quepa mejor */
+    font-size: 0.8rem;   /* texto más pequeño */
+    justify-content: center !important;  /* centrado horizontal */
+    text-align: center;                  /* asegura centrado del texto */
   }
 }
+

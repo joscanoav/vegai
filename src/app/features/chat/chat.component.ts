@@ -49,7 +49,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
 
   private readonly WELCOME_KEY = 'vegaai_seen_welcome';
 
-  private readonly WELCOME_TEXT = `¡Hola! 😊 Soy VegaAI, tu asistente virtual para Ciencias de la Computación y Digitalización.
+  private readonly WELCOME_TEXT = `¡Hola! 😊 Soy VegAI, tu asistente virtual para Ciencias de la Computación y Digitalización.
 Estoy aquí para ayudarte a descubrir lo fascinante que es la tecnología, la programación y todo el mundo digital.
 ¿Sobre qué tema te gustaría aprender hoy? 💻✨`;
 

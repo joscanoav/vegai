@@ -44,6 +44,13 @@ body {
   height: 100vh;                       /* Altura completa de la ventana */
   overflow: hidden;                    /* Evita scroll global */
 }
+html {
+  font-size: 16px; /* base consistente en todas las pantallas */
+}
+html, body, app-root, .main-content {
+  height: 100%;
+}
+
 .main-content {
   flex: 1;                             /* Ocupa espacio restante */
   display: flex;                       /* Centrado de contenido */

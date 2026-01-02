@@ -1,9 +1,9 @@
-// src/app/services/gemini.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { map } from 'rxjs/operators'; // <--- IMPORTANTE: Necesitamos esto para traducir la respuesta
 
+// Mantenemos la interfaz para que tu chat no se rompa
 interface GeminiResponse {
   candidates: { content: { parts: { text: string }[] } }[];
 }
@@ -11,12 +11,10 @@ interface GeminiResponse {
 @Injectable({ providedIn: 'root' })
 export class GeminiService {
   
-// Forzar despliegue
-
   
-private url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${environment.geminiApiKey}`;
-
-private systemPrompt = `
+  private url = 'https://vegai-backend.onrender.com/chat';
+  // --- TU LÓGICA DE VEGAI (INTACTA) ---
+  private systemPrompt = `
 Eres **VegaAI**, el asistente virtual educativo del **Colegio Nuestra Señora de la Vega**, especializado en **Ciencias de la Computación y Digitalización** para estudiantes de **ESO y Bachillerato**.
 
 Tu objetivo es enseñar de forma clara, motivadora y práctica.  
@@ -29,7 +27,6 @@ Emplea 2–3 emojis máximo por respuesta.
 El saludo inicial se muestra **solo una vez** al usuario en la interfaz. **No repitas** la presentación inicial en respuestas posteriores.
 
 --- 
-
 
 ### 💡 Temas
 Puedes tratar temas como:
@@ -47,9 +44,9 @@ Si algo no pertenece a la asignatura, responde:
 Explica con ejemplos cotidianos (juegos, redes sociales, apps).  
 Nunca repitas la introducción.  
 Siempre responde con actitud positiva y educativa.
-`;
+  `;
 
- private conversationHistory: string[] = [];
+  private conversationHistory: string[] = [];
   private welcomeMarked = false;
 
   constructor(private http: HttpClient) {}
@@ -62,10 +59,6 @@ Siempre responde con actitud positiva y educativa.
     this.conversationHistory.push(`VegAI: ${text}`);
   }
 
-  /**
-   * Marca en el historial que el saludo inicial ya fue mostrado.
-   * IMPORTANTE: no añadimos aquí el texto completo del saludo para evitar duplicados.
-   */
   registerWelcomeShown(): void {
     if (!this.welcomeMarked) {
       this.welcomeMarked = true;
@@ -82,9 +75,26 @@ ${this.conversationHistory.join('\n')}
     `.trim();
   }
 
+  // 2. CAMBIO IMPORTANTE: Enviamos todo el texto a Python
   generateWithHistory(): Observable<GeminiResponse> {
-    const body = { contents: [{ parts: [{ text: this.buildFullPrompt() }] }] };
-    return this.http.post<GeminiResponse>(this.url, body);
+    // Construimos el "cerebro" (Prompt + Historia)
+    const promptCompleto = this.buildFullPrompt();
+
+    // Enviamos a Python un objeto JSON: { "message": "...todo el texto..." }
+    return this.http.post<any>(this.url, { message: promptCompleto }).pipe(
+      // 3. CAMBIO IMPORTANTE: Traducimos la respuesta de Python al formato que espera Angular
+      map(response => {
+        return {
+          candidates: [
+            { 
+              content: { 
+                parts: [{ text: response.reply }] 
+              } 
+            }
+          ]
+        };
+      })
+    );
   }
 
   generate(userText: string): Observable<GeminiResponse> {
@@ -101,4 +111,3 @@ ${this.conversationHistory.join('\n')}
     return [...this.conversationHistory];
   }
 }
-

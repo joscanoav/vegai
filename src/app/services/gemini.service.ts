@@ -98,3 +98,4 @@ ${this.conversationHistory.join('\n')}
     return [...this.conversationHistory];
   }
 }
+

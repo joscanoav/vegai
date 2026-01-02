@@ -135,14 +135,20 @@ Estoy aquí para ayudarte a descubrir lo fascinante que es la tecnología, la pr
           this.isSpeaking = false;
         }
       },
-      error: (err) => {
-        console.error('Error en Gemini:', err);
-        const errMsg = `Error: ${err?.message ?? 'desconocido'}`;
-        this.messages.push({ from: 'ia', text: errMsg, timestamp: new Date() });
-        this.gemini.addAiMessageToHistory(errMsg);
-        this.loading = false;
-        this.shouldScroll = true;
-      },
+error: (err) => {
+  console.error('🔴 ERROR COMPLETO:', err);
+  
+  // Vamos a intentar leer el mensaje real que manda Google
+  if (err.error && err.error.error) {
+     console.log('📝 Mensaje detallado:', err.error.error.message);
+     alert('Error de Google: ' + err.error.error.message); // Te saldrá una alerta en pantalla
+  }
+
+  const errMsg = `Error: ${err.message}`;
+  this.messages.push({ from: 'ia', text: errMsg, timestamp: new Date() });
+  this.loading = false;
+  this.shouldScroll = true;
+},
     });
   }
 

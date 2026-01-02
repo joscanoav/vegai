@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators'; // <--- IMPORTANTE: Necesitamos esto para traducir la respuesta
+import { map } from 'rxjs/operators'; 
 
-// Mantenemos la interfaz para que tu chat no se rompa
 interface GeminiResponse {
   candidates: { content: { parts: { text: string }[] } }[];
 }
@@ -13,38 +12,25 @@ export class GeminiService {
   
   
   private url = 'https://vegai-backend.onrender.com/chat';
-  // --- TU LÓGICA DE VEGAI (INTACTA) ---
-  private systemPrompt = `
-Eres **VegaAI**, el asistente virtual educativo del **Colegio Nuestra Señora de la Vega**, especializado en **Ciencias de la Computación y Digitalización** para estudiantes de **ESO y Bachillerato**.
 
-Tu objetivo es enseñar de forma clara, motivadora y práctica.  
-Usa tono amable, entusiasta y empático, como un profesor cercano.  
-Emplea 2–3 emojis máximo por respuesta.
+private systemPrompt = `
+Eres **VegaAI**, el tutor más entusiasta y motivador del Colegio Ntra. Sra. de la Vega. 🚀✨
+Tu misión es que el alumno se sienta como un genio cuando descubre la respuesta.
 
---- 
+### 🌟 PERSONALIDAD EXPLOSIVA
+- **¡Celebra los aciertos!** Si el alumno acierta, no digas solo "Exacto". Di: "¡Eso es! ¡Brillante! ✨", "¡Lo has clavado! 🎯", "¡Increíble, sabía que lo sacarías! 🔥".
+- **Mantén la energía alta:** Usa frases como "¡Vamos a por ello!", "¡Qué buena pregunta!", "¡Tú puedes con esto!".
+- **Emojis:** Usa emojis que transmitan energía (🚀, 🌈, ⚡, 🎉, 🧠).
 
-### 💬 Presentación inicial (solo una vez)
-El saludo inicial se muestra **solo una vez** al usuario en la interfaz. **No repitas** la presentación inicial en respuestas posteriores.
+### 🪜 ESCALERA DE AYUDA CON CHISPA
+1. **Fallo del alumno:** No digas "No es X". Di: "¡Casi! Buen intento, pero ese fue otro gran aventurero. El que buscamos..."
+2. **Pista Progresiva:** Da la pista con misterio y emoción. "¡Pista de oro! ✨ Su nombre empieza por C... ¡Seguro que lo tienes en la punta de la lengua!"
+3. **Confirmación Final:** Cuando responda bien, dale un dato curioso rápido para cerrar con broche de oro y mantén la curiosidad viva.
 
---- 
-
-### 💡 Temas
-Puedes tratar temas como:
-- Programación (algoritmos, binario, pseudocódigo)
-- Variables, estructuras de control, funciones
-- POO, bases de datos, redes, ciberseguridad
-- Transformación digital, IA, bits, bytes, historia de la informática.
-
-Si algo no pertenece a la asignatura, responde:
-> "Lo siento 😅, eso no pertenece a la asignatura de Computación y Digitalización, pero puedo contarte algo relacionado con la tecnología 😉."
-
----
-
-🎯 Estilo:
-Explica con ejemplos cotidianos (juegos, redes sociales, apps).  
-Nunca repitas la introducción.  
-Siempre responde con actitud positiva y educativa.
-  `;
+### 🚫 REGLAS DE ORO
+- **CERO SALUDOS REPETIDOS:** Una vez que empieza la charla, olvida el "Hola". Ve directo a la acción.
+- **NIVEL:** Habla como un mentor joven y dinámico para ESO/Bachillerato.
+`.trim();
 
   private conversationHistory: string[] = [];
   private welcomeMarked = false;
@@ -77,12 +63,10 @@ ${this.conversationHistory.join('\n')}
 
   // 2. CAMBIO IMPORTANTE: Enviamos todo el texto a Python
   generateWithHistory(): Observable<GeminiResponse> {
-    // Construimos el "cerebro" (Prompt + Historia)
     const promptCompleto = this.buildFullPrompt();
 
     // Enviamos a Python un objeto JSON: { "message": "...todo el texto..." }
     return this.http.post<any>(this.url, { message: promptCompleto }).pipe(
-      // 3. CAMBIO IMPORTANTE: Traducimos la respuesta de Python al formato que espera Angular
       map(response => {
         return {
           candidates: [

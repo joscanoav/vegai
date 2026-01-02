@@ -49,9 +49,11 @@ export class ChatComponent implements OnInit, AfterViewChecked {
 
   private readonly WELCOME_KEY = 'vegaai_seen_welcome';
 
-  private readonly WELCOME_TEXT = `¡Hola! 😊 Soy VegAI, tu asistente virtual para Ciencias de la Computación y Digitalización.
-Estoy aquí para ayudarte a descubrir lo fascinante que es la tecnología, la programación y todo el mundo digital.
-¿Sobre qué tema te gustaría aprender hoy? 💻✨`;
+private readonly WELCOME_TEXT = `¡Hola! 👋 Soy **VegAI**, tu tutor personal del Colegio Nuestra Señora de la Vega. 📚✨
+
+Estoy aquí para acompañarte en tu aprendizaje de todas las áreas: desde resolver dudas de **Matemáticas** 🧮 e **Inglés**, hasta analizar la **Literatura** 📖, la **Biología** 🧬 o la **Geografía e Historia** 🌍.
+
+No te daré la respuesta directamente, pero te ayudaré con pistas para que tú mismo la encuentres. **¿Qué desafío escolar tienes para hoy?**`;
 
   // Bandera para saber si ya se reprodujo el TTS del saludo inicial
   private welcomeSpoken = false;

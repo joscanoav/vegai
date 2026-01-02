@@ -11,11 +11,10 @@ interface GeminiResponse {
 @Injectable({ providedIn: 'root' })
 export class GeminiService {
   
-  // ⚠️ IMPORTANTE: Pon la clave DIRECTAMENTE aquí entre las comillas para probar.
-  // Asegúrate de que NO haya espacios ni al principio ni al final de la clave.
-  private apiKey = 'AIzaSyCmNXG_sI0jZRBv_YwfRd2vXMoOHV2tuPo'; 
+// Forzar despliegue
+
   
-private url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${this.apiKey}`;
+private url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${environment.geminiApiKey}`;
 
 private systemPrompt = `
 Eres **VegaAI**, el asistente virtual educativo del **Colegio Nuestra Señora de la Vega**, especializado en **Ciencias de la Computación y Digitalización** para estudiantes de **ESO y Bachillerato**.

@@ -14,23 +14,25 @@ export class GeminiService {
   private url = 'https://vegai-backend.onrender.com/chat';
 
 private systemPrompt = `
-Eres **VegaAI**, el tutor más entusiasta y motivador del Colegio Ntra. Sra. de la Vega. 🚀✨
-Tu misión es que el alumno se sienta como un genio cuando descubre la respuesta.
+Eres **VegaAI**, el tutor más entusiasta y motivador del Colegio Ntra. Sra. de la Vega para ESO y Bachillerato. 🚀✨
 
-### 🌟 PERSONALIDAD EXPLOSIVA
-- **¡Celebra los aciertos!** Si el alumno acierta, no digas solo "Exacto". Di: "¡Eso es! ¡Brillante! ✨", "¡Lo has clavado! 🎯", "¡Increíble, sabía que lo sacarías! 🔥".
-- **Mantén la energía alta:** Usa frases como "¡Vamos a por ello!", "¡Qué buena pregunta!", "¡Tú puedes con esto!".
-- **Emojis:** Usa emojis que transmitan energía (🚀, 🌈, ⚡, 🎉, 🧠).
+### 🚨 LÓGICA DE FLUJO (IMPORTANTE)
+1. **Detección de Intención:** - Si el estudiante hace una pregunta directa (ej: "¿Quién conquistó...?", "¿Cómo se hace...?"), ignora el saludo inicial y pasa DIRECTAMENTE a la **Escalera de Ayuda**.
+   - Solo responde con "¿Qué asignatura tienes en mente?" si el estudiante solo dice "Hola" o algo sin ningún contexto.
+2. **Historial:** Revisa siempre los mensajes anteriores. Si el estudiante ya mencionó un tema (ej: "Historia"), no vuelvas a preguntar qué asignatura quiere ver.
 
-### 🪜 ESCALERA DE AYUDA CON CHISPA
-1. **Fallo del alumno:** No digas "No es X". Di: "¡Casi! Buen intento, pero ese fue otro gran aventurero. El que buscamos..."
-2. **Pista Progresiva:** Da la pista con misterio y emoción. "¡Pista de oro! ✨ Su nombre empieza por C... ¡Seguro que lo tienes en la punta de la lengua!"
-3. **Confirmación Final:** Cuando responda bien, dale un dato curioso rápido para cerrar con broche de oro y mantén la curiosidad viva.
+### 🪜 ESCALERA DE AYUDA SOCRÁTICA
+- **Fase 1 (Pista sutil):** No des el nombre. Da un detalle del origen o una característica. 
+  *Ejemplo Incas:* "Fue un explorador extremeño que lideró la expedición hacia el sur desde Panamá... ¿Te suena su apellido?"
+- **Fase 2 (Pista clave):** "Su apellido empieza por P y tuvo un socio llamado Diego de Almagro. ¡Seguro que lo sabes!"
+- **Fase 3 (Confirmación):** ¡Exacto, Francisco Pizarro! ✨
 
-### 🚫 REGLAS DE ORO
-- **CERO SALUDOS REPETIDOS:** Una vez que empieza la charla, olvida el "Hola". Ve directo a la acción.
-- **NIVEL:** Habla como un mentor joven y dinámico para ESO/Bachillerato.
+### 🎭 PERSONALIDAD
+- ¡Entusiasmo al máximo! 🚀
+- CERO saludos repetidos. Si ya estás hablando, no digas "¡Hola!" otra vez.
+- Usa 🇬🇧 para inglés y 🌍 para historia.
 `.trim();
+
 
   private conversationHistory: string[] = [];
   private welcomeMarked = false;
@@ -38,17 +40,19 @@ Tu misión es que el alumno se sienta como un genio cuando descubre la respuesta
   constructor(private http: HttpClient) {}
 
   addUserMessageToHistory(text: string): void {
-    this.conversationHistory.push(`Usuario: ${text}`);
+    // Cambiamos "Usuario" por "Estudiante" para reforzar el rol pedagógico
+    this.conversationHistory.push(`Estudiante: ${text}`);
   }
 
   addAiMessageToHistory(text: string): void {
-    this.conversationHistory.push(`VegAI: ${text}`);
+    this.conversationHistory.push(`VegaAI: ${text}`);
   }
 
   registerWelcomeShown(): void {
     if (!this.welcomeMarked) {
       this.welcomeMarked = true;
-      this.conversationHistory.push(`Sistema: El saludo inicial ya fue mostrado al usuario (no repetir).`);
+      // Añadimos una instrucción de sistema clara para el historial
+      this.conversationHistory.push(`Sistema: El estudiante ya ha visto la bienvenida. Espera a su duda para actuar como tutor socrático.`);
     }
   }
 
@@ -61,11 +65,9 @@ ${this.conversationHistory.join('\n')}
     `.trim();
   }
 
-  // 2. CAMBIO IMPORTANTE: Enviamos todo el texto a Python
   generateWithHistory(): Observable<GeminiResponse> {
     const promptCompleto = this.buildFullPrompt();
 
-    // Enviamos a Python un objeto JSON: { "message": "...todo el texto..." }
     return this.http.post<any>(this.url, { message: promptCompleto }).pipe(
       map(response => {
         return {

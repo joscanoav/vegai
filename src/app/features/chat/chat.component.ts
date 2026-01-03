@@ -49,16 +49,13 @@ export class ChatComponent implements OnInit, AfterViewChecked {
 
   private readonly WELCOME_KEY = 'vegaai_seen_welcome';
 
-private readonly WELCOME_TEXT = `¡Hola! 👋 Soy **VegAI**, tu tutor personal del Colegio Nuestra Señora de la Vega. 📚✨
+private readonly WELCOME_TEXT = `¡Hola, explorador! 👋 Soy **VegAI**, tu tutor personal del Colegio Nuestra Señora de la Vega. 📚✨
 
-Estoy aquí para acompañarte en tu aprendizaje de todas las áreas: desde resolver dudas de **Matemáticas** 🧮 e **Inglés**, hasta analizar la **Literatura** 📖, la **Biología** 🧬 o la **Geografía e Historia** 🌍.
+Estoy aquí para acompañarte en tu aprendizaje: desde **Matemáticas** 🧮 e **Inglés**, hasta **Literatura** 📖, **Biología** 🧬 o **Geografía e Historia** 🌍.
 
-No te daré la respuesta directamente, pero te ayudaré con pistas para que tú mismo la encuentres. **¿Qué desafío escolar tienes para hoy?**`;
+¡Yo te doy las pistas y tú pones la magia! 🎩✨ **¿Qué desafío tenemos hoy?**`;
 
-  // Bandera para saber si ya se reprodujo el TTS del saludo inicial
   private welcomeSpoken = false;
-
-  // 🔴 Bandera para controlar si el asistente está hablando
   isSpeaking = false;
 
   constructor(private gemini: GeminiService) {}
@@ -66,10 +63,14 @@ No te daré la respuesta directamente, pero te ayudaré con pistas para que tú 
   ngOnInit(): void {
     const seen = localStorage.getItem(this.WELCOME_KEY);
 
+    // Mostramos siempre el mensaje de bienvenida visualmente
     this.messages.push({ from: 'ia', text: this.WELCOME_TEXT, timestamp: new Date() });
 
+    // IMPORTANTE: Registramos en el servicio que el saludo ya se mostró 
+    // para que la IA no lo repita en su primera respuesta real.
+    this.gemini.registerWelcomeShown();
+
     if (!seen) {
-      this.gemini.registerWelcomeShown();
       this.speakWelcome();
       localStorage.setItem(this.WELCOME_KEY, '1');
     } else {
@@ -80,7 +81,9 @@ No te daré la respuesta directamente, pero te ayudaré con pistas para que tú 
   private speakWelcome(): void {
     try {
       if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-        const u = new SpeechSynthesisUtterance(this.WELCOME_TEXT);
+        // Quitamos el Markdown para que el narrador no lea los asteriscos
+        const plainText = this.WELCOME_TEXT.replace(/\*\*/g, '');
+        const u = new SpeechSynthesisUtterance(plainText);
         u.lang = 'es-ES';
 
         this.isSpeaking = true;
@@ -110,7 +113,7 @@ No te daré la respuesta directamente, pero te ayudaré con pistas para que tú 
     this.gemini.generateWithHistory().subscribe({
       next: (resp) => {
         const reply = resp?.candidates?.[0]?.content?.parts?.[0]?.text
-          || 'No se recibió respuesta válida.';
+          || '¡Vaya! Algo se ha desconectado. ¿Podemos intentarlo de nuevo? 😅';
 
         this.messages.push({ from: 'ia', text: reply, timestamp: new Date() });
         this.gemini.addAiMessageToHistory(reply);
@@ -118,11 +121,12 @@ No te daré la respuesta directamente, pero te ayudaré con pistas para que tú 
         this.loading = false;
         this.shouldScroll = true;
 
-        // 🔊 TTS
+        // TTS (Voz)
         try {
           if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+            // No repetir el audio si es un saludo que ya se dio
             if (this.welcomeSpoken && this.isReplyGreeting(reply)) {
-              // no reproducir
+               // Silencio
             } else {
               const u = new SpeechSynthesisUtterance(reply);
               u.lang = 'es-ES';
@@ -133,27 +137,20 @@ No te daré la respuesta directamente, pero te ayudaré con pistas para que tú 
             }
           }
         } catch (e) {
-          console.warn('SpeechSynthesis error', e);
           this.isSpeaking = false;
         }
       },
-error: (err) => {
-  console.error('🔴 ERROR COMPLETO:', err);
-  
-  // Vamos a intentar leer el mensaje real que manda Google
-  if (err.error && err.error.error) {
-     console.log('📝 Mensaje detallado:', err.error.error.message);
-     alert('Error de Google: ' + err.error.error.message); // Te saldrá una alerta en pantalla
-  }
-
-  const errMsg = `Error: ${err.message}`;
-  this.messages.push({ from: 'ia', text: errMsg, timestamp: new Date() });
-  this.loading = false;
-  this.shouldScroll = true;
-},
+      error: (err) => {
+        console.error('🔴 ERROR:', err);
+        const errMsg = `Lo siento, he tenido un pequeño problema técnico. 🛠️ ¿Podrías repetirme tu duda?`;
+        this.messages.push({ from: 'ia', text: errMsg, timestamp: new Date() });
+        this.loading = false;
+        this.shouldScroll = true;
+      },
     });
   }
 
+  // Lógica mejorada para detectar si la IA está repitiendo el saludo
   private isReplyGreeting(reply: string): boolean {
     if (!reply) return false;
     const r = reply.toLowerCase();
@@ -161,8 +158,9 @@ error: (err) => {
       r.trim().startsWith('¡hola') ||
       r.trim().startsWith('hola') ||
       r.includes('soy vegaai') ||
-      r.includes('tu asistente virtual') ||
-      /¿sobre qué tema te gustaría|estoy aquí para ayudarte/.test(r)
+      r.includes('tutor personal') ||
+      r.includes('colegio nuestra señora') ||
+      /¿sobre qué tema|¿qué desafío escolar/.test(r)
     );
   }
 

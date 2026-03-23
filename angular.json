@@ -53,7 +53,7 @@
                 }
               ],
               "outputHashing": "all",
-              "baseHref": "/vegai/"
+              "baseHref": "/"
             },
             "development": {
               "optimization": false,
